@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# Extract als files to .xml folder.
+extractProjectXML()  
+{
+    # There's nothing to do if there are no als files...
+    if [  !  `find ./ -name "*.als" -depth 1` ]
+    then
+        echo no files found
+        return 
+    fi
+
+    # Ensure xml directory exists...
+    XML_DIR=`pwd`/.xml
+    mkdir -p $XML_DIR
+
+    # Extract each project file's xml...
+    for FILE in ./*.als
+    do
+        XML=$XML_DIR/$(basename `echo $FILE | sed "s/als/xml/"`)
+        gzip -cd $FILE > $XML
+    done
+}
+
+# Pack .xml data to als files.
+repackProjectXML()
+{
+    XML_DIR=`pwd`/.xml
+
+    # We shouldn't proceed if there is no xml dir...
+    if [ ! -d $XML_DIR ]
+    then 
+        return 0
+    fi
+    
+    cd $XML_DIR 
+
+    # Zip each xml file to als in project dir...
+    for FILE in *.xml
+    do 
+        gzip -c $FILE > ../`echo $FILE | sed -r "s/.xml/.als/"`
+    done
+}
+
+extractProjectXML
+repackProjectXML
